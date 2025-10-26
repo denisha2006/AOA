@@ -1,71 +1,95 @@
 #include <stdio.h>
 #include <string.h>
+#include <conio.h>
 
-void print_matrix(int m, int n, int matrix[m + 1][n + 1]) {
-    int i, j;
-    printf("Solution Matrix (C):\n");
-    for (i = 0; i <= m; i++) {
-        for (j = 0; j <= n; j++) {
-            printf("%d  ", matrix[i][j]);
-        }
-        printf("\n");
-    }
-}
+int i, j, m, n, LCS_table[20][20];  // DP table
+char b[20][20];                     // Not used but kept for reference
 
-void longest_common_subsequence(char x[], char y[]) {
-    int m, n, i, j, index;
-    m = strlen(x);
-    n = strlen(y);
-    int c[m + 1][n + 1];
-    char b[m + 1][n + 1];
-    for (i = 0; i <= m; i++) {
-        c[i][0] = 0;
-    }
-    for (j = 0; j <= n; j++) {
-        c[0][j] = 0;
-    }
-    for (i = 1; i <= m; i++) {
-        for (j = 1; j <= n; j++) {
-            if (x[i - 1] == y[j - 1]) {
-                c[i][j] = c[i - 1][j - 1] + 1;
-                b[i][j] = '\\';
-            } else if (c[i - 1][j] >= c[i][j - 1]) {
-                c[i][j] = c[i - 1][j];
-                b[i][j] = '^';
-            } else {
-                c[i][j] = c[i][j - 1];
-                b[i][j] = '<';
+// Function to compute LCS
+void lcsAlgo(char S1[], char S2[]) 
+{
+    m = strlen(S1); // length of first string
+    n = strlen(S2); // length of second string
+
+    // Step 1: Initialize DP table (first row and first column = 0)
+    for (i = 0; i <= m; i++) 
+        LCS_table[i][0] = 0;
+    for (i = 0; i <= n; i++) 
+        LCS_table[0][i] = 0;
+
+    // Step 2: Fill DP table using recurrence relation
+    for (i = 1; i <= m; i++) 
+    {
+        for (j = 1; j <= n; j++) 
+        {
+            if (S1[i - 1] == S2[j - 1]) 
+            {
+                // If characters match, take diagonal + 1
+                LCS_table[i][j] = LCS_table[i - 1][j - 1] + 1;
+            } 
+            else if (LCS_table[i - 1][j] >= LCS_table[i][j - 1]) 
+            {
+                // If not match, take maximum of top or left
+                LCS_table[i][j] = LCS_table[i - 1][j];
+            } 
+            else 
+            {
+                LCS_table[i][j] = LCS_table[i][j - 1];
             }
         }
     }
 
-    print_matrix(m, n, c);
+    // Step 3: Reconstruct LCS string from DP table
+    int index = LCS_table[m][n];   // length of LCS
+    char lcsStr[index + 1];        // store result
+    lcsStr[index] = '\0';          // null-terminate string
 
-    index = c[m][n];
-    printf("\nLength of LCS: %d\n", index);
-
-    char lcs[index + 1];
-    lcs[index] = '\0';
-
-    i = m; j = n;
-    while (i > 0 && j > 0) {
-        if (b[i][j] == '\\') {
-            lcs[index - 1] = x[i - 1];
+    int x = m, y = n;
+    while (x > 0 && y > 0) 
+    {
+        if (S1[x - 1] == S2[y - 1]) 
+        {
+            lcsStr[index - 1] = S1[x - 1]; // put character in result
+            x--;
+            y--;
             index--;
-            i--;
-            j--;
-        } else if (b[i][j] == '^') {
-            i--;
-        } else {
-            j--;
+        } 
+        else if (LCS_table[x - 1][y] > LCS_table[x][y - 1]) 
+        {
+            x--; // move up
+        } 
+        else 
+        {
+            y--; // move left
         }
     }
-    printf("LCS: %s\n", lcs);
+
+    // Step 4: Print results
+    printf("S1 : %s \nS2 : %s \n", S1, S2);
+    printf("LCS: %s\n", lcsStr);
+    printf("The length of LCS = %d\n", strlen(lcsStr));
 }
 
-int main() {
-    char x[] = "ABCBDAB";
-    char y[] = "BDCABA";
-    longest_common_subsequence(x, y);
+int main() 
+{
+    char S1[20] = "CBDA", S2[20] = "ACADB";
+
+    clrscr();   // clear screen (Turbo C)
+
+    // Run LCS algorithm
+    lcsAlgo(S1, S2);
+
+    // Print DP table for verification
+    printf("\nDP Table (LCS_table):\n");
+    for (i = 0; i < 10; i++) 
+    {
+        for (j = 0; j < 10; j++) 
+        {
+            printf("%d ", LCS_table[i][j]);
+        }
+        printf("\n");
+    }
+
+    getch();    // wait for key press before closing
     return 0;
 }
