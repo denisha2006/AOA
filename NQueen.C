@@ -1,72 +1,82 @@
 #include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
+#include <conio.h>
+#include <math.h>
 
-// Function to print the solution matrix
-void printSolution(int board[], int n) {
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            if (board[i] == j) {
-                printf(" Q ");
-            } else {
-                printf(" _ ");
-            }
-        }
-        printf("\n");
-    }
-}
+int board[20], count = 0;
 
-// Function to check if a queen can be placed at board[row][col]
-bool isSafe(int board[], int row, int col) {
-    for (int i = 0; i < row; i++) {
-        // Check if there is a queen in the same column or on a diagonal
-        if (board[i] == col || abs(board[i] - col) == abs(i - row)) {
-            return false;
-        }
-    }
-    return true;
-}
+int place(int row, int column);
+void queen(int row, int n);
+void print(int n);
 
-// Backtracking function to solve the N-Queen problem
-bool solveNQueens(int board[], int row, int n) {
-    // Base case: If all queens are placed, return true
-    if (row >= n) {
-        return true;
-    }
-
-    // Consider this row and try placing this queen in all columns one by one
-    for (int col = 0; col < n; col++) {
-        // Check if the queen can be placed at board[row][col]
-        if (isSafe(board, row, col)) {
-            // Place the queen
-            board[row] = col;
-
-            // Recur to place the rest of the queens
-            if (solveNQueens(board, row + 1, n)) {
-                return true;
-            }
-
-            // If placing queen at board[row][col] doesn't lead to a solution, then backtrack
-            // No need to explicitly remove, the next iteration will overwrite
-        }
-    }
-    // If queen cannot be placed in any column in this row, then return false
-    return false;
-}
-
-int main() {
+void main()
+{
     int n;
-    printf("Enter the size of the chessboard (N): ");
+    clrscr();
+
+    printf(" - N Queens Problem Using Backtracking -");
+    printf("\n\nEnter number of Queens: ");
     scanf("%d", &n);
 
-    int board[n];
-    
-    if (solveNQueens(board, 0, n)) {
-        printf("\nSolution for N = %d:\n", n);
-        printSolution(board, n);
-    } else {
-        printf("\nSolution does not exist for N = %d.\n", n);
-    }
+    queen(1, n);   // start placing queens from row 1
 
-    return 0;
+    if (count == 0)
+        printf("\nNo solution found!");
+    
+    getch();
+}
+
+void queen(int row, int n)
+{
+    int column;
+    for (column = 1; column <= n; column++)
+    {
+        if (place(row, column))
+        {
+            board[row] = column; // place queen
+            if (row == n)       // if last row reached
+                print(n);
+            else
+                queen(row + 1, n); // go to next row
+        }
+    }
+}
+
+int place(int row, int column)
+{
+    int i;
+    for (i = 1; i <= row - 1; i++)
+    {
+        // check column conflict
+        if (board[i] == column)
+            return 0;
+
+        // check diagonal conflict
+        if (abs(board[i] - column) == abs(i - row))
+            return 0;
+    }
+    return 1; // safe position
+}
+
+void print(int n)
+{
+    int i, j;
+    count++;
+    printf("\n\nSolution %d:\n\n", count);
+
+    // print column numbers
+    for (i = 1; i <= n; i++)
+        printf("\t%d", i);
+
+    // print chess board
+    for (i = 1; i <= n; i++)
+    {
+        printf("\n\n%d", i);
+        for (j = 1; j <= n; j++)
+        {
+            if (board[i] == j)
+                printf("\tQ"); // queen placed
+            else
+                printf("\t-"); // empty cell
+        }
+    }
 }
