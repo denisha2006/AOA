@@ -3,7 +3,6 @@
 #include <conio.h>
 
 int i, j, m, n, LCS_table[20][20];  // DP table
-char b[20][20];                     // Not used but kept for reference
 
 // Function to compute LCS
 void lcsAlgo(char S1[], char S2[]) 
@@ -11,7 +10,7 @@ void lcsAlgo(char S1[], char S2[])
     m = strlen(S1); // length of first string
     n = strlen(S2); // length of second string
 
-    // Step 1: Initialize DP table (first row and first column = 0)
+    // Step 1: Initialize DP table (first row and column = 0)
     for (i = 0; i <= m; i++) 
         LCS_table[i][0] = 0;
     for (i = 0; i <= n; i++) 
@@ -41,8 +40,8 @@ void lcsAlgo(char S1[], char S2[])
 
     // Step 3: Reconstruct LCS string from DP table
     int index = LCS_table[m][n];   // length of LCS
-    char lcsStr[index + 1];        // store result
-    lcsStr[index] = '\0';          // null-terminate string
+    char lcsStr[50];               // fixed size (Turbo C requires constant size)
+    lcsStr[index] = '\0';          // null terminate
 
     int x = m, y = n;
     while (x > 0 && y > 0) 
@@ -55,13 +54,9 @@ void lcsAlgo(char S1[], char S2[])
             index--;
         } 
         else if (LCS_table[x - 1][y] > LCS_table[x][y - 1]) 
-        {
-            x--; // move up
-        } 
+            x--; 
         else 
-        {
-            y--; // move left
-        }
+            y--;
     }
 
     // Step 4: Print results
