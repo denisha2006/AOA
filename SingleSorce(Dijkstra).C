@@ -1,101 +1,105 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <conio.h>
-#include <limits.h>
 
-// Defines for the maximum number of vertices
-#define row 6
-#define col 6
+#define MAX 10     // Maximum number of vertices
+#define INF 99999  // Representation of infinity
 
-// Function to find the shortest path from a single source vertex 'v'
-void ShortestPath(int v, int matrix[row][col], int n)
+// Function to find the vertex with minimum distance that is not visited yet
+int minDist(int dist[MAX], int s[MAX], int n) 
 {
-    // S[]: Set of vertices included in the shortest path tree (1 if included, 0 otherwise)
-    // dist[]: Array to store the shortest distance from source 'v' to all other vertices
-    int S[row], dist[row];
-    int i, j, k, u;
+    int min = INF, min_index = -1;
+    int i;
 
-    // 1. Initialization
-    for (i = 0; i < n; i++)
+    // Check all vertices
+    for (i = 1; i <= n; i++) 
     {
-        // Initially, no vertex is in the shortest path set S
-        S[i] = 0;
-        // Initialize distances directly from the source 'v'
-        dist[i] = matrix[v][i];
+        // If vertex not visited and has smaller distance
+        if (s[i] == 0 && dist[i] < min) 
+        {
+            min = dist[i];
+            min_index = i;
+        }
+    }
+    return min_index; // Return index of minimum distance vertex
+}
+
+// Dijkstra’s Algorithm
+void dijkstra(int v, int cost[MAX][MAX], int dist[MAX], int n) 
+{
+    int s[MAX]; // visited set
+    int i, w, num, u;
+
+    // Step 1: Initialize
+    for (i = 1; i <= n; i++) 
+    {
+        s[i] = 0;              // Mark all vertices as unvisited
+        dist[i] = cost[v][i];  // Distance from source to each vertex
     }
 
-    // Include source vertex 'v' in the shortest path set S
-    S[v] = 1;
-    // Distance from source to itself is 0
-    dist[v] = 0;
+    s[v] = 1;     // Mark source as visited
+    dist[v] = 0;  // Distance to itself is 0
 
-    // 2. Main loop: Find shortest path for all vertices
-    // The loop runs n-1 times since the source is already finalized
-    for (k = 0; k < n - 1; k++)
+    // Step 2: Repeat for (n-1) vertices
+    for (num = 2; num <= n; num++) 
     {
-        // Find the vertex 'u' with the minimum distance among those not yet included in S
-        int min_dist = INT_MAX;
-        u = -1; // 'u' will store the index of the vertex to be included next
+        u = minDist(dist, s, n); // Pick unvisited vertex with smallest dist
+        s[u] = 1;                // Mark it as visited
 
-        for (i = 0; i < n; i++)
+        // Step 3: Update distances of neighbors
+        for (w = 1; w <= n; w++) 
         {
-            if (S[i] == 0 && dist[i] < min_dist)
+            if (s[w] == 0 && dist[w] > dist[u] + cost[u][w]) 
             {
-                min_dist = dist[i];
-                u = i;
+                dist[w] = dist[u] + cost[u][w]; // Relaxation step
             }
         }
 
-        // If 'u' is -1, it means all remaining vertices are unreachable (distance INT_MAX)
-        if (u == -1)
-            break;
-
-        // Add the newly found minimum distance vertex 'u' to the shortest path set S
-        S[u] = 1;
-
-        // 3. Update distance values of the adjacent vertices of 'u'
-        for (i = 0; i < n; i++)
+        // Print after each iteration
+        printf("\nAfter Iteration %d:\n", num - 1);
+        for (i = 1; i <= n; i++) 
         {
-            // Update dist[i] only if:
-            // a) vertex 'i' is not in S
-            // b) there is an edge from 'u' to 'i' (matrix[u][i] != 0)
-            // c) the path through 'u' is shorter than the current distance to 'i'
-            if (S[i] == 0 && matrix[u][i] != 0 && dist[u] != INT_MAX && dist[u] + matrix[u][i] < dist[i])
-            {
-                dist[i] = dist[u] + matrix[u][i];
-            }
+            printf("s[%d] = %d, dist[%d] = %d\n", i, s[i], i, dist[i]);
         }
-    }
-
-    // Print the results
-    printf("\nShortest path from source %d:\n", v);
-    for (i = 0; i < n; i++)
-    {
-        printf("Distance to vertex %d is: %d\n", i, dist[i]);
     }
 }
 
-// Main function to get input and call the algorithm
-void main()
+int main() 
 {
-    int matrix[row][col], i, j, v;
-    int n = row;
-    
-    clrscr(); 
+    int cost[MAX][MAX], dist[MAX];
+    int n, source;
+    int i, j;
 
-    printf("Enter matrix elements (use a large number like 9999 for no direct path):\n");
-    for (i = 0; i < row; i++)
+    clrscr(); // Clear screen (Turbo C)
+
+    // Input number of vertices
+    printf("Enter Number of vertices: ");
+    scanf("%d", &n);
+
+    // Input adjacency cost matrix
+    printf("Enter cost Adjacency Matrix:\n");
+    printf("(Use %d for no direct edge)\n", INF);
+    for (i = 1; i <= n; i++) 
     {
-        for (j = 0; j < col; j++)
+        for (j = 1; j <= n; j++) 
         {
-            printf("Enter element [%d][%d]: ", i, j);
-            scanf("%d", &matrix[i][j]);
+            scanf("%d", &cost[i][j]);
         }
     }
 
-    printf("\nEnter Source Vertex (0 to %d): ", n - 1);
-    scanf("%d", &v);
+    // Input source vertex
+    printf("Enter the Source Vertex: ");
+    scanf("%d", &source);
 
-    ShortestPath(v, matrix, n);
-    getch();
+    // Run Dijkstra
+    dijkstra(source, cost, dist, n);
+
+    // Print final shortest distances
+    printf("\nShortest Distance from Source %d:\n", source);
+    for (i = 1; i <= n; i++) 
+    {
+        printf("To %d = %d\n", i, dist[i]);
+    }
+
+    getch(); // Wait for key press before closing
+    return 0;
 }
