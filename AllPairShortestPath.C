@@ -1,49 +1,59 @@
 #include <stdio.h>
-#define INF 99999
-
-void printSolution(int V, int dist[V][V]) {
-    printf("The following matrix shows the shortest distances between every pair of vertices:\n");
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            if (dist[i][j] == INF)
-                printf("%7s", "INF");
-            else
-                printf("%7d", dist[i][j]);
-        }
-        printf("\n");
+#include<conio.h>
+#define nV 4
+#define INF 999
+void printMatrix(int matrix[][nV]);
+void floydWarshall(int graph[][nV])
+{
+    int matrix[nV][nV], i, j, k;
+    for (i = 0; i < nV; i++)
+	for (j = 0; j < nV; j++)
+	    matrix[i][j] = graph[i][j];
+    for (k = 0; k < nV; k++)
+    {
+	for (i = 0; i < nV; i++)
+	{
+	    for (j = 0; j < nV; j++)
+	    {
+		if (matrix[i][k] + matrix[k][j] < matrix[i][j])
+		    matrix[i][j] = matrix[i][k] + matrix[k][j];
+	    }
+	}
+	printf("After including vertex: %d \n", k + 1);
+	printMatrix(matrix);
     }
 }
-
-void FloydWarshall(int V, int dist[V][V]) {
-    for (int k = 0; k < V; k++) {
-        for (int i = 0; i < V; i++) {
-            for (int j = 0; j < V; j++) {
-                if (dist[i][k] != INF && dist[k][j] != INF &&
-                    dist[i][k] + dist[k][j] < dist[i][j]) {
-                    dist[i][j] = dist[i][k] + dist[k][j];
-                }
-            }
-        }
+void printMatrix(int matrix[][nV])
+{
+    for (int i = 0; i < nV; i++)
+    {
+	for (int j = 0; j < nV; j++)
+	{
+	    if (matrix[i][j] == INF)
+		printf("%4s", "INF");
+	    else
+		printf("%4d", matrix[i][j]);
+	}
+	printf("\n");
     }
-    printSolution(V, dist);
 }
+int main()
+{
+clrscr();
+    int graph[nV][nV];
+    int i, j, n;
+    printf("\nEnter the number of vertices of adj matrix: ");
 
-int main() {
-    int V;
-    printf("Enter the number of vertices: ");
-    scanf("%d", &V);
-
-    int dist[V][V];
-
-    printf("Enter the adjacency matrix:\n");
-    printf("Use 99999 for infinity (no direct edge).\n");
-
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            scanf("%d", &dist[i][j]);
-        }
+    scanf("%d", &n);
+    printf("\nEnter the elements of cost adjacency matrix\n");
+    for (i = 0; i < n; i++)
+    {
+	for (j = 0; j < n; j++)
+	{
+	    scanf("%d", &graph[i][j]);
+	}
     }
-    FloydWarshall(V, dist);
+    floydWarshall(graph);
+    getch();
     return 0;
 }
-
